@@ -20,7 +20,14 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
-  schema: 'http://graphql-engine:8080/v1/graphql', // Use the Docker service name and port
+  schema: {
+    'http://graphql-engine:8080/v1/graphql': {
+    // 'http://graphql-engine:5050/v1/graphql': {
+      headers: {
+        'x-hasura-admin-secret': 'vigilantmuse',
+      },
+    },
+  },
   documents: ['src/**/*.vue'],
   ignoreNoDocuments: true, // for better experience with the watcher
   generates: {

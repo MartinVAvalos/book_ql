@@ -29,19 +29,32 @@ services:
       - "-c"
       - effective_cache_size=8GB
   graphql-engine:
-    image: hasura/graphql-engine:v2.39.1
+    # image: hasura/graphql-engine:v2.39.1
+    # image: hasura/graphql-engine:v2.39.1.cli-migrations-v3
+    image: hasura/graphql-engine:v2.35.1.cli-migrations-v3
     platform: linux/arm64
     ports:
+    # - "${HASURA_PORT}:5050"
     - "${HASURA_PORT}:8080"
     depends_on:
     - "postgres"
     restart: always
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/macincloud3
+      HASURA_GRAPHQL_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/postgres
       # HASURA_GRAPHQL_DATABASE_URL: postgres://customuser:MYPGDBPASSWORD@postgres:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
       ## uncomment next line to set an admin secret
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
+      # Tell Hasura where to find migrations and metadata
+      HASURA_GRAPHQL_MIGRATIONS_DIR: ../hasura/migrations
+      HASURA_GRAPHQL_METADATA_DIR: ../hasura/metadata
+      HASURA_GRAPHQL_CONFIG_PATH: ../hasura/config.yaml
+    volumes:
+    # Adjust paths as needed, assuming docker-compose.yml is in `macincloud 3/docker`
+    # and hasura directory is `macincloud 3/hasura`
+      - ../hasura/:/hasura/
+    # command: ["graphql-engine", "--project", "/hasura", "--endpoint", "http://graphql-engine:8080", "--admin-secret", "vigilantmuse", "migrate", "apply", "--database-name", "default"]
+
   frontend:
     build: 
       context: ../

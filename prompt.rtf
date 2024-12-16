@@ -1,0 +1,171 @@
+file structure
+{
+docker {
+	.env
+	docker-compose.yml
+	Dockerfile-frontend
+}
+frontend/
+hasura {
+	metadata/
+	migrations {
+		17340383263N_user_email/
+		1722144617571_init/
+	}
+	seeds/
+	config.yaml
+}
+ops { helper.sh }
+makefile
+package-lock.json	
+}
+
+.env
+FRONTEND_PORT=4200
+HASURA_PORT=5050
+HASURA_GRAPHQL_ADMIN_SECRET=vigilantmuse
+POSTGRES_PASSWORD=Muse1997!
+POSTGRES_USER=muse
+# VITE_GRAPHQL_URL=http://localhost:5050/v1/graphql
+VITE_GRAPHQL_URL=http://localhost:${HASURA_PORT}/v1/graphql
+
+
+makefile
+# Variables
+DC=docker compose
+DOCK_PATH=docker/docker-compose.yml
+FrontendStr=echo "Frontend http://localhost:4200"
+BackendStr=echo "hasura http://localhost:5050"
+# Start up message
+START_UP_MESSAGE=&& $(FrontendStr) && $(BackendStr)
+RUN=$(DC) -f $(DOCK_PATH)
+# docker compose comands have to be ran within the docker file
+Exec=cd docker
+
+
+dev: # docker compose up --build -d && echo "Frontend http://localhost:4200" && echo "hasura http://localhost:5050"
+	$(RUN) up --build -d ${START_UP_MESSAGE}
+
+debug:
+	$(RUN) up --build ${START_UP_MESSAGE}
+
+stop:
+	$(RUN) down
+
+restart:
+	$(RUN) restart
+
+# status:
+# exec -it -u hasurauser api hasura-cli --database-name default migrate status
+# docker exec -it -u hasura docker-graphql-engine-1 hasura-cli --database-name default migrate status
+
+# https://hasura.io/docs/2.0/migrations-metadata-seeds/manage-migrations/
+migrate:
+	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret vigilantmuse migrate apply --database-name default
+
+resolve-inconsistent-metadata:
+	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret vigilantmuse metadata reload
+
+new-migration:
+	@source ops/helpers.sh; new_migration
+
+status:
+	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret vigilantmuse --database-name default migrate status
+
+psql-pipe:
+#Ex:  make psql-pipe < ./hasura/migrations/default/1722144617571_init/down.sql 
+	docker exec -i docker-postgres-1 psql -U muse -d postgres
+
+generate-types:
+	$(Exec) && $(DC) exec frontend sh -c 'cd /app && npm run generate'
+
+export:
+	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret vigilantmuse metadata export
+
+logs:
+	$(RUN) logs graphql-engine
+
+teardown:
+	@make stop
+	@docker volume rm $$(docker volume ls -q) || true
+	@docker system prune -a --volumes --force
+
+
+docker-compose.yml
+services:docker-compose.yml
+services:
+  postgres:
+    image: postgres:16.3-alpine
+    restart: always
+    volumes:
+    - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      # POSTGRES_USER: customuser
+    command:
+      - postgres
+      - "-c"
+      - log_min_error_statement=ERROR
+      - "-c"
+      - log_min_messages=ERROR
+      - "-c"
+      - log_destination=stderr
+      - "-c"
+      - maintenance_work_mem=800MB
+      - "-c"
+      - max_wal_size=4GB
+      - "-c"
+      - work_mem=1GB
+      - "-c"
+      - max_connections=100
+      - "-c"
+      - shared_buffers=4GB
+      - "-c"
+      - effective_cache_size=8GB
+  graphql-engine:
+    # image: hasura/graphql-engine:v2.39.1
+    # image: hasura/graphql-engine:v2.39.1.cli-migrations-v3
+    image: hasura/graphql-engine:v2.35.1.cli-migrations-v3
+    platform: linux/arm64
+    ports:
+    # - "${HASURA_PORT}:5050"
+    - "${HASURA_PORT}:8080"
+    depends_on:
+    - "postgres"
+    restart: always
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/postgres
+      # HASURA_GRAPHQL_DATABASE_URL: postgres://customuser:MYPGDBPASSWORD@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+      ## uncomment next line to set an admin secret
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
+      # Tell Hasura where to find migrations and metadata
+      HASURA_GRAPHQL_MIGRATIONS_DIR: ../hasura/migrations
+      HASURA_GRAPHQL_METADATA_DIR: ../hasura/metadata
+      HASURA_GRAPHQL_CONFIG_PATH: ../hasura/config.yaml
+    volumes:
+    # Adjust paths as needed, assuming docker-compose.yml is in `macincloud 3/docker`
+    # and hasura directory is `macincloud 3/hasura`
+      - ../hasura/:/hasura/
+    # command: ["graphql-engine", "--project", "/hasura", "--endpoint", "http://graphql-engine:8080", "--admin-secret", "vigilantmuse", "migrate", "apply", "--database-name", "default"]
+
+  frontend:
+    build: 
+      context: ../
+      dockerfile: ./docker/Dockerfile-frontend
+    ports:
+      - "${FRONTEND_PORT}:8080"
+    stdin_open: true
+    tty: true
+    working_dir: /app
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+      - node_modules:/app/node_modules
+    environment:
+      VITE_GRAPHQL_URL: ${VITE_GRAPHQL_URL}
+
+volumes:
+  db_data: null
+  node_modules: null
