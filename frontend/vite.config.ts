@@ -20,6 +20,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      gql: path.resolve(__dirname, "./src/assets/generated/"),
       '@': path.resolve(__dirname, './src')
     }
   },

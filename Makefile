@@ -22,6 +22,7 @@ dev:
 	$(RUN) up --build -d
 	@make wait-for-hasura
 	@make migrate
+	@make reload-metadata
 	$(START_UP_MESSAGE)
 
 debug: # TODO: May need to be updated. Here's the original command: $(RUN) up --build && ${START_UP_MESSAGE}
@@ -41,10 +42,11 @@ restart:
 # docker exec -it -u hasura docker-graphql-engine-1 hasura-cli --database-name default migrate status
 
 # https://hasura.io/docs/2.0/migrations-metadata-seeds/manage-migrations/
+
 migrate:
 	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret vigilantmuse migrate apply --database-name default
 
-resolve-inconsistent-metadata:
+reload-metadata:
 	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret vigilantmuse metadata reload
 
 new-migration:

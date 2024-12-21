@@ -1,0 +1,20 @@
+schema: 
+  - http://graphql-engine:8080/v1/graphql:
+      headers:
+        Content-Type: application/json
+        x-hasura-admin-secret: vigilantmuse
+documents: src/**/*.graphql
+generates:
+  ./src/gql/:
+    preset: client
+    # presetConfig:
+    #   gqlTagName: graphql
+    #   fragmentMasking: false
+    plugins:
+      # - typescript
+      #   - typescript-operations
+      - typescript-vue-urql
+    config:
+      useTypeImports: true
+      withHooks: true
+      # documentMode: documentNode

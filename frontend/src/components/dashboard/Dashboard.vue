@@ -12,21 +12,16 @@
 </template>
 
 <script setup lang="ts">
+import { useGetUsersQuery } from '@/assets/generated/api';
+
 // import { ref } from 'vue';
-import { useQuery } from '@urql/vue';
+// import { useGetUsersQuery } from "gql/api";
+// import { useGetUsersQuery } from "@/assets/generated/api";
+// frontend/src/assets/generated/api.ts
+// frontend/src/gql/graphql.ts
 
-const USERS_QUERY = `
-  query{
-    Users {
-      id
-      name
-    }
-  }
-`;
-
-const { data, fetching, error } = useQuery({
-  query: USERS_QUERY,
-});
+const { data, fetching, error } = useGetUsersQuery();
+console.log("data",data);
 
 </script>
 

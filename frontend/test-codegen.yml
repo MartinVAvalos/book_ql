@@ -1,0 +1,32 @@
+schema: 
+  - ${VITE_APP_API_ROOT}:
+      headers:
+        Content-Type: application/json
+        x-hasura-admin-secret: ${HASURA_SECRET}
+documents: src/**/*.graphql
+generates: 
+  src/assets/generated/schema.json:
+    plugins:
+      - introspection
+  src/assets/generated/schema.min.json:
+    plugins:
+      - urql-introspection
+  src/assets/generated/api.ts:
+    config: 
+      gqlImport: '@urql/vue#gql'
+      arrayInputCoercion: false
+      nonOptionalTypename: true
+    plugins:
+      - add:
+          content: '// @ts-nocheck'
+      - typescript
+      - typescript-operations
+      - typescript-vue-urql
+      - typescript-urql-graphcache
+  _spyglass-calculations-gen/assets/generated/api.ts:
+    config:
+      arrayInputCoercion: false
+      nonOptionalTypename: true
+    plugins:
+      - typescript
+      - typescript-operations

@@ -1,6 +1,7 @@
 version: 3
 endpoint: http://localhost:5050
 # endpoint: http://graphql-engine:5050
+# endpoint: http://graphql-engine:8080/v1/graphql
 admin_secret: vigilantmuse
 metadata_directory: metadata
 migrations_directory: migrations

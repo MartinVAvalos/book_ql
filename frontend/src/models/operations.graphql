@@ -1,5 +1,7 @@
-query {
+query GetUsers {
   Users {
-    ...UserFields
+    id
+    name
+    email
   }
 }

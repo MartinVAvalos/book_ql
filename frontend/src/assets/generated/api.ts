@@ -1,6 +1,4 @@
-/* eslint-disable */
-import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
-import gql from 'graphql-tag';
+import { gql } from '@urql/vue';
 import * as Urql from '@urql/vue';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -55,7 +53,7 @@ export type String_Comparison_Exp = {
 
 /** columns and relationships of "Users" */
 export type Users = {
-  __typename?: 'Users';
+  __typename: 'Users';
   email: Scalars['String']['output'];
   id: Scalars['uuid']['output'];
   name: Scalars['String']['output'];
@@ -63,14 +61,14 @@ export type Users = {
 
 /** aggregated selection of "Users" */
 export type Users_Aggregate = {
-  __typename?: 'Users_aggregate';
+  __typename: 'Users_aggregate';
   aggregate?: Maybe<Users_Aggregate_Fields>;
   nodes: Array<Users>;
 };
 
 /** aggregate fields of "Users" */
 export type Users_Aggregate_Fields = {
-  __typename?: 'Users_aggregate_fields';
+  __typename: 'Users_aggregate_fields';
   count: Scalars['Int']['output'];
   max?: Maybe<Users_Max_Fields>;
   min?: Maybe<Users_Min_Fields>;
@@ -108,7 +106,7 @@ export type Users_Insert_Input = {
 
 /** aggregate max on columns */
 export type Users_Max_Fields = {
-  __typename?: 'Users_max_fields';
+  __typename: 'Users_max_fields';
   email?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -116,7 +114,7 @@ export type Users_Max_Fields = {
 
 /** aggregate min on columns */
 export type Users_Min_Fields = {
-  __typename?: 'Users_min_fields';
+  __typename: 'Users_min_fields';
   email?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -124,7 +122,7 @@ export type Users_Min_Fields = {
 
 /** response of any mutation on the table "Users" */
 export type Users_Mutation_Response = {
-  __typename?: 'Users_mutation_response';
+  __typename: 'Users_mutation_response';
   /** number of rows affected by the mutation */
   affected_rows: Scalars['Int']['output'];
   /** data from the rows affected by the mutation */
@@ -209,7 +207,7 @@ export enum Cursor_Ordering {
 
 /** mutation root */
 export type Mutation_Root = {
-  __typename?: 'mutation_root';
+  __typename: 'mutation_root';
   /** delete data from the table: "Users" */
   delete_Users?: Maybe<Users_Mutation_Response>;
   /** delete single row from the table: "Users" */
@@ -289,7 +287,7 @@ export enum Order_By {
 }
 
 export type Query_Root = {
-  __typename?: 'query_root';
+  __typename: 'query_root';
   /** fetch data from the table: "Users" */
   Users: Array<Users>;
   /** fetch aggregated fields from the table: "Users" */
@@ -322,7 +320,7 @@ export type Query_RootUsers_By_PkArgs = {
 };
 
 export type Subscription_Root = {
-  __typename?: 'subscription_root';
+  __typename: 'subscription_root';
   /** fetch data from the table: "Users" */
   Users: Array<Users>;
   /** fetch aggregated fields from the table: "Users" */
@@ -379,10 +377,8 @@ export type Uuid_Comparison_Exp = {
 export type GetUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUsersQuery = { __typename?: 'query_root', Users: Array<{ __typename?: 'Users', id: any, name: string, email: string }> };
+export type GetUsersQuery = { __typename: 'query_root', Users: Array<{ __typename: 'Users', id: any, name: string, email: string }> };
 
-
-export const GetUsersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUsers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Users"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"email"}}]}}]}}]} as unknown as DocumentNode<GetUsersQuery, GetUsersQueryVariables>;
 
 export const GetUsersDocument = gql`
     query GetUsers {
