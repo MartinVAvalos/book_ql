@@ -1,20 +1,40 @@
-schema: 
-  - http://graphql-engine:8080/v1/graphql:
-      headers:
-        Content-Type: application/json
-        x-hasura-admin-secret: vigilantmuse
+schema:
+  'http://graphql-engine:8080/v1/graphql':
+    headers:
+      Content-Type: application/json
+      x-hasura-admin-secret: vigilantmuse
 documents: src/**/*.graphql
 generates:
-  ./src/gql/:
-    preset: client
-    # presetConfig:
-    #   gqlTagName: graphql
-    #   fragmentMasking: false
+  # src/gql/api.ts:
+  src/assets/generated/api.ts:
+    config: 
+      gqlImport: '@urql/vue#gql'
+      arrayInputCoercion: false
+      nonOptionalTypename: true
     plugins:
-      # - typescript
-      #   - typescript-operations
+      - add:
+          content: '// @ts-nocheck'
+      - typescript
+      - typescript-operations
       - typescript-vue-urql
-    config:
-      useTypeImports: true
-      withHooks: true
-      # documentMode: documentNode
+
+# schema: 
+#   - http://graphql-engine:8080/v1/graphql:
+#       headers:
+#         Content-Type: application/json
+#         x-hasura-admin-secret: vigilantmuse
+# documents: src/**/*.graphql
+# generates:
+#   ./src/gql/generated:
+#     preset: client
+#     # presetConfig:
+#     #   gqlTagName: graphql
+#     #   fragmentMasking: false
+#     plugins:
+#       # - typescript
+#       #   - typescript-operations
+#       - typescript-vue-urql
+#     config:
+#       useTypeImports: true
+#       withHooks: true
+#       # documentMode: documentNode

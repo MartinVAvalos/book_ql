@@ -5,3 +5,28 @@ query GetUsers {
     email
   }
 }
+
+mutation AddUser($name: String!, $email: String!) {
+  insert_Users_one(object: { name: $name, email: $email }) {
+    id
+    name
+    email
+  }
+}
+
+mutation DeleteUser($id: uuid!) {
+  delete_Users_by_pk(id: $id) {
+    id
+  }
+}
+
+mutation UpdateUser($id: uuid!, $name: String!, $email: String!) {
+  update_Users_by_pk(
+    pk_columns: { id: $id }
+    _set: { name: $name, email: $email }
+  ) {
+    id
+    name
+    email
+  }
+}

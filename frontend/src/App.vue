@@ -9,6 +9,7 @@ import { provideClient, Client, cacheExchange, fetchExchange } from '@urql/vue';
 
 const client = new Client({
   // url: import.meta.env.VITE_GRAPHQL_URL,
+  // url: "http://graphql-engine:8080/v1/graphql",
   url: "http://localhost:5050/v1/graphql",
   fetchOptions: () => ({
     headers: {

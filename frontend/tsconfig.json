@@ -14,9 +14,10 @@
     "baseUrl": ".",
     "types": ["node", "vue", "vite/client"],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "gql/*": ["src/assets/generated/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "old-code-gen.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", ],
   "exclude": ["node_modules"]
 }

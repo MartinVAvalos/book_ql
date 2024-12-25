@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { gql } from '@urql/vue';
 import * as Urql from '@urql/vue';
 export type Maybe<T> = T | null;
@@ -379,6 +380,30 @@ export type GetUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetUsersQuery = { __typename: 'query_root', Users: Array<{ __typename: 'Users', id: any, name: string, email: string }> };
 
+export type AddUserMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+}>;
+
+
+export type AddUserMutation = { __typename: 'mutation_root', insert_Users_one?: { __typename: 'Users', id: any, name: string, email: string } | null };
+
+export type DeleteUserMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type DeleteUserMutation = { __typename: 'mutation_root', delete_Users_by_pk?: { __typename: 'Users', id: any } | null };
+
+export type UpdateUserMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  name: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+}>;
+
+
+export type UpdateUserMutation = { __typename: 'mutation_root', update_Users_by_pk?: { __typename: 'Users', id: any, name: string, email: string } | null };
+
 
 export const GetUsersDocument = gql`
     query GetUsers {
@@ -392,4 +417,41 @@ export const GetUsersDocument = gql`
 
 export function useGetUsersQuery(options?: Omit<Urql.UseQueryArgs<never, GetUsersQueryVariables | undefined>, 'query'>) {
   return Urql.useQuery<GetUsersQuery, GetUsersQueryVariables | undefined>({ query: GetUsersDocument, variables: undefined, ...options });
+};
+export const AddUserDocument = gql`
+    mutation AddUser($name: String!, $email: String!) {
+  insert_Users_one(object: {name: $name, email: $email}) {
+    id
+    name
+    email
+  }
+}
+    `;
+
+export function useAddUserMutation() {
+  return Urql.useMutation<AddUserMutation, AddUserMutationVariables>(AddUserDocument);
+};
+export const DeleteUserDocument = gql`
+    mutation DeleteUser($id: uuid!) {
+  delete_Users_by_pk(id: $id) {
+    id
+  }
+}
+    `;
+
+export function useDeleteUserMutation() {
+  return Urql.useMutation<DeleteUserMutation, DeleteUserMutationVariables>(DeleteUserDocument);
+};
+export const UpdateUserDocument = gql`
+    mutation UpdateUser($id: uuid!, $name: String!, $email: String!) {
+  update_Users_by_pk(pk_columns: {id: $id}, _set: {name: $name, email: $email}) {
+    id
+    name
+    email
+  }
+}
+    `;
+
+export function useUpdateUserMutation() {
+  return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument);
 };
