@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as Urql from '@urql/vue';
-import { GetUsersQuery, GetUsersQueryVariables } from './gql/api';
+import { GetUsersQuery, GetUsersQueryVariables } from 'gql/api';
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 export const GetUsersDocument = gql`
