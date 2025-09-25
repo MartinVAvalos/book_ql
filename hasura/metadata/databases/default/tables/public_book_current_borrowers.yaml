@@ -1,0 +1,3 @@
+table:
+  name: book_current_borrowers
+  schema: public

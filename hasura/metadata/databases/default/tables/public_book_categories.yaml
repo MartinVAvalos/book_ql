@@ -1,0 +1,10 @@
+table:
+  name: book_categories
+  schema: public
+object_relationships:
+  - name: book
+    using:
+      foreign_key_constraint_on: book_id
+  - name: category
+    using:
+      foreign_key_constraint_on: category_id

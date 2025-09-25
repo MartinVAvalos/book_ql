@@ -1,0 +1,7 @@
+table:
+  name: book_inventory
+  schema: public
+object_relationships:
+  - name: book
+    using:
+      foreign_key_constraint_on: book_id

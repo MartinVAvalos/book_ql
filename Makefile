@@ -1,33 +1,51 @@
+-include docker/.env
+.EXPORT_ALL_VARIABLES:
+
 # Variables
 DC=docker compose
 DOCK_PATH=docker/docker-compose.yml
-FrontendStr=echo "Frontend http://localhost:4200"
-BackendStr=echo "Hasura http://localhost:5050"
+FRONTEND_PORT ?= 4200
+HASURA_PORT   ?= 5050
+FrontendStr=echo "Frontend http://localhost:$(FRONTEND_PORT)"
+BackendStr=echo "Hasura http://localhost:$(HASURA_PORT)"
 # Start up message
 START_UP_MESSAGE=$(FrontendStr) && $(BackendStr)
 RUN=$(DC) -f $(DOCK_PATH)
-POSTGRES_USER=muse
+POSTGRES_USER ?= $(POSTGRES_USER)
 # docker compose comands have to be ran within the docker file
 Exec=cd docker
+HASURA_HTTP_PORT ?= $(HASURA_PORT)
+# Inside containers, talking to service name is robust:
+HASURA_ENDPOINT  ?= http://graphql-engine:8080/v1/graphql
+# Prefer .env's HASURA_GRAPHQL_ADMIN_SECRET, but keep Makefile name HASURA_SECRET
+# If no admin secret provided, default to 1234
+HASURA_SECRET    ?= $(if $(HASURA_GRAPHQL_ADMIN_SECRET),$(HASURA_GRAPHQL_ADMIN_SECRET),1234)
+GOOGLE_BOOKS_API_KEY ?= $(GOOGLE_BOOKS_API_KEY)
+FRONTEND_CONT     ?= docker-frontend-1
+SEED_SCRIPT_PATH  ?= /app/seed_books.js
+# DEFAULT_QUERY     ?= Fiction
+# Allow "make seed_books 1" where 1 is COUNT
+SEED_COUNT ?= $(word 2,$(MAKECMDGOALS))
 
 wait-for-hasura:
 	@echo "Waiting for Hasura GraphQL Engine to be ready..."
 	@sleep 30
-	@while ! curl -s "http://localhost:5050/healthz" > /dev/null; do \
+	@while ! curl -s "http://localhost:$(HASURA_PORT)/healthz" > /dev/null; do \
 		echo "Hasura is not ready. Retrying..."; \
 		sleep 2; \
 	done
 	@echo "Hasura is ready!"
 
+
 dev:
-	$(RUN) up --build -d
+	$(RUN) up -d --no-build || $(RUN) up --build -d
 	@make wait-for-hasura
 	@make migrate
 	@make reload-metadata
-	$(START_UP_MESSAGE)
+	@$(START_UP_MESSAGE)
 
 check-db-tables:
-	docker exec -i docker-postgres-1 psql -U muse -d postgres -c "\dt"
+	docker exec -i docker-postgres-1 psql -U $(POSTGRES_USER) -d postgres -c "\dt"
 
 debug: # TODO: May need to be updated. Here's the original command: $(RUN) up --build && ${START_UP_MESSAGE}
 	$(RUN) up --build
@@ -45,29 +63,28 @@ restart:
 # exec -it -u hasurauser api hasura-cli --database-name default migrate status
 # docker exec -it -u hasura docker-graphql-engine-1 hasura-cli --database-name default migrate status
 
-# https://hasura.io/docs/2.0/migrations-metadata-seeds/manage-migrations/
-
 migrate:
-	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret vigilantmuse migrate apply --database-name default
+	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret $(HASURA_SECRET) migrate apply --database-name default
 
 reload-metadata:
-	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret vigilantmuse metadata reload
+	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret $(HASURA_SECRET) metadata reload
 
 new-migration:
 	@source ops/helpers.sh; new_migration
 
 status:
-	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret vigilantmuse --database-name default migrate status
+	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret $(HASURA_SECRET) --database-name default migrate status
 
 psql-pipe:
 #Ex:  make psql-pipe < ./hasura/migrations/default/1722144617571_init/down.sql 
-	docker exec -i docker-postgres-1 psql -U muse -d postgres
+	docker exec -i docker-postgres-1 psql -U $(POSTGRES_USER) -d postgres
 
 generate-types:
 	$(Exec) && $(DC) exec frontend sh -c 'cd /app && npm run generate'
 
-export:
-	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret vigilantmuse metadata export
+
+export: // needs work
+	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret $(HASURA_SECRET) metadata export
 
 seed:
 	@echo "Seeding the database with the latest dump file..."
@@ -105,8 +122,55 @@ logs:
 	$(RUN) logs graphql-engine
 
 teardown:
+	@echo "Wiping DB (if running) and stopping containers..."
+	@make wipe-db
 	@make stop
 	@docker volume rm $$(docker volume ls -q) || true
 	@docker system prune -a --volumes --force
 
+wipe-db:
+	@echo "Attempting to wipe Postgres public schema (container: docker-postgres-1)..."
+	@if [ -n "$$(docker ps -q -f name=docker-postgres-1)" ]; then \
+	  docker exec -i docker-postgres-1 psql -U ${POSTGRES_USER} -d postgres -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO ${POSTGRES_USER}; GRANT ALL ON SCHEMA public TO public;"; \
+	  echo "Database wiped."; \
+	else \
+	  echo "Postgres container not running; skipping wipe."; \
+	fi
 
+postgres:
+	$(RUN) exec postgres psql -U $(POSTGRES_USER) -d postgres
+
+.PHONY: seed_books seed_isbns seed_dev _consume_arg wipe-db teardown
+
+# Allow "make seed_books 1" where 1 is COUNT" ---- make seed_books 1000 EXTRA='--genre=fiction --sort=alpha --pool=1000 --offset=0'
+SEED_COUNT ?= $(word 2,$(MAKECMDGOALS))
+
+seed_books: _consume_arg ## usage: make seed_books 10  (fetches fiction alpha)
+	@echo "Seeding books via Hasura: count=$(SEED_COUNT) genre=fiction alpha order"
+	docker exec \
+	  -e HASURA_URL="$(HASURA_ENDPOINT)" \
+	  -e HASURA_ADMIN_SECRET="$(HASURA_SECRET)" \
+	  -e GOOGLE_BOOKS_API_KEY="$(GOOGLE_BOOKS_API_KEY)" \
+	  -e SEED_LIMIT="$(SEED_COUNT)" \
+	  $(FRONTEND_CONT) \
+	  node "$(SEED_SCRIPT_PATH)" --genre=fiction --sort=alpha $(EXTRA)
+
+seed_dev: ## Run the dev seeder (1000 fiction, alpha, pool=1000, offset=0)
+	$(MAKE) seed_books SEED_COUNT=1000 EXTRA='--genre=fiction --sort=alpha --pool=1000 --offset=0'
+
+# Example: make seed_isbns ISBN=9781491927281,9780596805524
+ISBN ?=
+seed_isbns: ## seed by ISBN list
+	@if [ -z "$(ISBN)" ]; then echo "Provide ISBN=comma,separated,list"; exit 1; fi
+	docker exec \
+	  -e HASURA_URL="$(HASURA_ENDPOINT)" \
+	  -e HASURA_ADMIN_SECRET="$(HASURA_SECRET)" \
+	  -e GOOGLE_BOOKS_API_KEY="$(GOOGLE_BOOKS_API_KEY)" \
+	  $(FRONTEND_CONT) \
+	  node "$(SEED_SCRIPT_PATH)" --isbns=$(ISBN)
+
+# Swallow bare args like "1" so make doesn't treat them as targets
+_consume_arg:
+	@true
+%:
+	@:

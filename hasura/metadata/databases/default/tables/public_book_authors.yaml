@@ -1,0 +1,10 @@
+table:
+  name: book_authors
+  schema: public
+object_relationships:
+  - name: author
+    using:
+      foreign_key_constraint_on: author_id
+  - name: book
+    using:
+      foreign_key_constraint_on: book_id

@@ -3,7 +3,9 @@ schema:
     headers:
       Content-Type: application/json
       x-hasura-admin-secret: vigilantmuse
-documents: src/**/*.graphql
+documents:
+  - src/**/*.graphql
+  - operations.graphql 
 generates:
   # src/gql/api.ts:
   src/assets/generated/api.ts:

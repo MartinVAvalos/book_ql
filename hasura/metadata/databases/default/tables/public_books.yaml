@@ -1,0 +1,40 @@
+table:
+  name: books
+  schema: public
+object_relationships:
+  - name: book_inventory
+    using:
+      foreign_key_constraint_on:
+        column: book_id
+        table:
+          name: book_inventory
+          schema: public
+array_relationships:
+  - name: book_authors
+    using:
+      foreign_key_constraint_on:
+        column: book_id
+        table:
+          name: book_authors
+          schema: public
+  - name: book_categories
+    using:
+      foreign_key_constraint_on:
+        column: book_id
+        table:
+          name: book_categories
+          schema: public
+  - name: book_loans
+    using:
+      foreign_key_constraint_on:
+        column: book_id
+        table:
+          name: book_loans
+          schema: public
+  - name: user_books
+    using:
+      foreign_key_constraint_on:
+        column: book_id
+        table:
+          name: user_books
+          schema: public

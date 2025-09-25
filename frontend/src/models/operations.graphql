@@ -1,13 +1,23 @@
 query GetUsers {
-  Users {
+  users {
     id
     name
     email
+    book_loans_aggregate {
+      aggregate {
+        count
+      }
+    }
+    user_books_aggregate {
+      aggregate {
+        count
+      }
+    }
   }
 }
 
 mutation AddUser($name: String!, $email: String!) {
-  insert_Users_one(object: { name: $name, email: $email }) {
+  insert_users_one(object: { name: $name, email: $email }) {
     id
     name
     email
@@ -15,15 +25,274 @@ mutation AddUser($name: String!, $email: String!) {
 }
 
 mutation DeleteUser($id: uuid!) {
-  delete_Users_by_pk(id: $id) {
+  delete_users_by_pk(id: $id) {
     id
   }
 }
 
 mutation UpdateUser($id: uuid!, $name: String!, $email: String!) {
-  update_Users_by_pk(
+  update_users_by_pk(
     pk_columns: { id: $id }
     _set: { name: $name, email: $email }
+  ) {
+    id
+    name
+    email
+  }
+}
+
+query GetBooks {
+  books(order_by: { title: asc }) {
+    id
+    google_volume_id
+    title
+    book_authors(order_by: { ord: asc }) {
+      ord
+      author {
+        id
+        name
+      }
+    }
+    book_categories {
+      category {
+        id
+        comment
+      }
+    }
+    description
+    publisher
+    published_date
+    page_count
+    language
+    image_thumbnail_url
+    info_link
+  }
+}
+
+mutation AddBook($object: books_insert_input!) {
+  insert_books_one(object: $object) {
+    id
+    google_volume_id
+    title
+    book_authors(order_by: { ord: asc }) {
+      ord
+      author {
+        id
+        name
+      }
+    }
+    book_categories {
+      category {
+        id
+        comment
+      }
+    }
+  }
+}
+
+mutation UpdateBook($id: uuid!, $changes: books_set_input!) {
+  update_books_by_pk(pk_columns: { id: $id }, _set: $changes) {
+    id
+    title
+  }
+}
+
+mutation UpsertBook($book: books_insert_input!) {
+  insert_books_one(
+    object: $book
+    on_conflict: {
+      constraint: books_google_volume_id_key
+      update_columns: [
+        title
+        description
+        publisher
+        published_date
+        page_count
+        print_type
+        language
+        image_thumbnail_url
+        info_link
+        preview_link
+        canonical_volume_link
+        average_rating
+        ratings_count
+        industry_identifiers
+        sale_info
+        access_info
+        raw
+      ]
+    }
+  ) {
+    id
+    google_volume_id
+    title
+    book_authors(order_by: { ord: asc }) {
+      ord
+      author {
+        id
+        name
+      }
+    }
+    book_categories {
+      category {
+        id
+        comment
+      }
+    }
+  }
+}
+
+mutation DeleteBook($id: uuid!) {
+  delete_books_by_pk(id: $id) {
+    id
+  }
+}
+
+query GetBooksPaged(
+  $q: String = "%%"
+  $limit: Int = 10
+  $offset: Int = 0
+  $order: order_by = asc
+) {
+  books(
+    where: { title: { _ilike: $q } }
+    order_by: { title: $order }
+    limit: $limit
+    offset: $offset
+  ) {
+    id
+    title
+    language
+    published_date
+    image_thumbnail_url
+    info_link
+    description
+    book_authors {
+      ord
+      author {
+        id
+        name
+      }
+    }
+    # inventory row (one-to-one)
+    book_inventory {
+      quantity
+    }
+    # count of active loans (returned_at IS NULL)
+    book_loans_aggregate(where: { returned_at: { _is_null: true } }) {
+      aggregate {
+        count
+      }
+    }
+  }
+
+  books_aggregate(where: { title: { _ilike: $q } }) {
+    aggregate {
+      count
+    }
+  }
+}
+
+query GetCategories {
+  categories(order_by: { comment: asc }) {
+    id
+    comment
+  }
+}
+
+# Paged search for books with optional fiction filter and total count.
+# Note: if your DB does not have an `is_fiction` boolean column, replace the
+# `_and: [{ is_fiction: { _eq: $isFiction } }]` condition with a relation-based
+# filter (e.g. book_categories -> category.name) or remove it and perform
+# genre filtering at seed-time.
+query GetBooksByCategoryPaged(
+  $categoryId: String!
+  $q: String = "%%"
+  $limit: Int = 10
+  $offset: Int = 0
+  $order: order_by = asc
+) {
+  books(
+    where: {
+      title: { _ilike: $q }
+      book_categories: { category: { id: { _eq: $categoryId } } }
+    }
+    order_by: { title: $order }
+    limit: $limit
+    offset: $offset
+  ) {
+    id
+    title
+    language
+    published_date
+    image_thumbnail_url
+    info_link
+    description
+    book_authors {
+      ord
+      author {
+        id
+        name
+      }
+    }
+    book_inventory {
+      quantity
+    }
+    book_loans_aggregate(where: { returned_at: { _is_null: true } }) {
+      aggregate {
+        count
+      }
+    }
+  }
+  books_aggregate(
+    where: {
+      title: { _ilike: $q }
+      book_categories: { category: { id: { _eq: $categoryId } } }
+    }
+  ) {
+    aggregate {
+      count
+    }
+  }
+}
+
+# Active loans for a single book (active borrowers)
+query ActiveLoansForBook($bookId: uuid!) {
+  book_loans(
+    where: { book_id: { _eq: $bookId }, returned_at: { _is_null: true } }
+  ) {
+    id
+    borrowed_at
+    due_at
+    user {
+      id
+      name
+      email
+    }
+  }
+}
+
+# Mark a loan returned by updating returned_at
+mutation ReturnLoan($id: uuid!, $changes: book_loans_set_input!) {
+  update_book_loans_by_pk(pk_columns: { id: $id }, _set: $changes) {
+    id
+    returned_at
+  }
+}
+
+# Users eligible to check out a given book (exclude users who already have an active loan for that book)
+query GetEligibleUsersForBook($bookId: uuid!, $q: String = "%%") {
+  users(
+    where: {
+      _not: {
+        book_loans: {
+          book_id: { _eq: $bookId }
+          returned_at: { _is_null: true }
+        }
+      }
+      _or: [{ name: { _ilike: $q } }, { email: { _ilike: $q } }]
+    }
+    order_by: { name: asc }
   ) {
     id
     name

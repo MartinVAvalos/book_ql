@@ -1,0 +1,11 @@
+table:
+  name: authors
+  schema: public
+array_relationships:
+  - name: book_authors
+    using:
+      foreign_key_constraint_on:
+        column: author_id
+        table:
+          name: book_authors
+          schema: public

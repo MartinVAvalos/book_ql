@@ -163,8 +163,8 @@ services:
       HASURA_GRAPHQL_METADATA_DIR: ../hasura/metadata
       HASURA_GRAPHQL_CONFIG_PATH: ../hasura/config.yaml
     volumes:
-    # Adjust paths as needed, assuming docker-compose.yml is in `macincloud 3/docker`
-    # and hasura directory is `macincloud 3/hasura`
+    # Adjust paths as needed, assuming docker-compose.yml is in `book_ql/docker`
+    # and hasura directory is `book_ql/hasura`
       - ../hasura/:/hasura/
     # command: ["graphql-engine", "--project", "/hasura", "--endpoint", "http://graphql-engine:8080", "--admin-secret", "vigilantmuse", "migrate", "apply", "--database-name", "default"]
 

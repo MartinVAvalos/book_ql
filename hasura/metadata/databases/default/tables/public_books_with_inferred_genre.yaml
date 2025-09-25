@@ -1,0 +1,3 @@
+table:
+  name: books_with_inferred_genre
+  schema: public
