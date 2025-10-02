@@ -4,8 +4,8 @@
 # Variables
 DC=docker compose
 DOCK_PATH=docker/docker-compose.yml
-FRONTEND_PORT ?= 4200
-HASURA_PORT   ?= 5050
+FRONTEND_PORT ?= $(FRONTEND_PORT)
+HASURA_PORT   ?= $(HASURA_PORT)
 FrontendStr=echo "Frontend http://localhost:$(FRONTEND_PORT)"
 BackendStr=echo "Hasura http://localhost:$(HASURA_PORT)"
 # Start up message
@@ -14,7 +14,6 @@ RUN=$(DC) -f $(DOCK_PATH)
 POSTGRES_USER ?= $(POSTGRES_USER)
 # docker compose comands have to be ran within the docker file
 Exec=cd docker
-HASURA_HTTP_PORT ?= $(HASURA_PORT)
 # Inside containers, talking to service name is robust:
 HASURA_ENDPOINT  ?= http://graphql-engine:8080/v1/graphql
 # Prefer .env's HASURA_GRAPHQL_ADMIN_SECRET, but keep Makefile name HASURA_SECRET
