@@ -1,27 +1,5 @@
 <template>
   <div class="library-container">
-    <!-- Announcement Banner -->
-    <transition name="slide-fade">
-      <div v-if="showAnnouncement" class="announcement-banner">
-      </div>
-    </transition>
-
-    <!-- Header Section -->
-    <header class="library-header">
-      <div class="header-content">
-        <!-- Logo -->
-        <div class="logo">
-          <h1>CERRITOS LIBRARY</h1>
-        </div>
-
-        <!-- Hours and Account -->
-        <div class="header-right">
-          <div class="hours">
-            <strong>Hours:</strong> Monday-Friday 11 a.m.-7 p.m. | Saturday-Sunday 11 a.m.-5 p.m.
-          </div>
-        </div>
-      </div>
-    </header>
 
     <div class="main-content">
       <div class="search-container">
@@ -110,12 +88,20 @@ const handleSearch = () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+$blue: #0069A4;
+$green: #388528;
+$orange: #D85300;
+$yellow: #F1B700;
+
 .library-container {
   font-family: Arial, sans-serif;
   max-width: 100%;
   margin: 0 auto;
   color: #333;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 /* Announcement Banner */
@@ -151,49 +137,6 @@ const handleSearch = () => {
   cursor: pointer;
 }
 
-/* Header Section */
-.library-header {
-  padding: 15px 20px;
-  background-color: #f5f5f5;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo h1 {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  margin: 0;
-  position: relative;
-  padding-left: 40px;
-}
-
-.logo h1:before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
-  background: linear-gradient(135deg, #ffd700, #ffaa00);
-  border-radius: 50%;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.hours {
-  font-size: 0.9rem;
-}
-
 /* Search Bar */
 .search-container {
   width: 100%;
@@ -214,11 +157,18 @@ const handleSearch = () => {
 .search-input {
   flex-grow: 1;
   padding: 12px 15px;
-  border: 1px solid #ddd;
+  border: 3px solid #b0b0b0;
   border-radius: 4px 0 0 4px;
   font-size: 1rem;
   width: 100%;
   box-sizing: border-box;
+  outline: none;
+}
+
+.search-input:focus {
+  outline: none;
+  border: 3px solid $yellow;
+  box-shadow: none;
 }
 
 .search-input-group {
@@ -251,6 +201,7 @@ const handleSearch = () => {
 /* Main Content Area */
 .main-content {
   display: flex;
+  flex-grow: 4;
   flex-direction: column;
   background-image: url("../../../public/homepage-banner-2.webp");
   background-repeat: no-repeat;
@@ -260,30 +211,12 @@ const handleSearch = () => {
 }
 
 @media (max-width: 1024px) {
-  .header-content {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+  .main-content {
+    padding: 60px 0;
   }
 }
 
 @media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .header-right {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-  }
-  
-  .hours {
-    margin-bottom: 10px;
-    font-size: 0.8rem;
-  }
-  
   .search-container {
     max-width: 100%;
   }

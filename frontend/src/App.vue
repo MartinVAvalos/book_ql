@@ -42,7 +42,6 @@ provideClient(client);
   }
   
   .main-content {
-    flex: 1;
     padding-top: 0;
   }
 </style>

@@ -148,18 +148,29 @@ const pageInfo = computed(() => {
 // Handlers
 function onSearch() {
   offset.value = 0;
+  scrollToTop();
 }
-function nextPage() { offset.value = Math.min(offset.value + limit.value, Math.max(0, total.value - limit.value)); }
-function prevPage() { offset.value = Math.max(0, offset.value - limit.value); }
+
+function nextPage() { 
+  offset.value = Math.min(offset.value + limit.value, Math.max(0, total.value - limit.value)); 
+  scrollToTop();
+}
+
+function prevPage() { 
+  offset.value = Math.max(0, offset.value - limit.value); 
+  scrollToTop();
+}
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
 
 // handlers for shelf events
 function onShelfCheckedOut(bk: any) {
   openCheckout(bk);
-}
-
-// open-return moved into Book.vue; handled via 'returned' event
-function onShelfOpenReturn(_: any) {
-  /* noop */
 }
 
 function onShelfReturned(_: any) {
@@ -457,6 +468,18 @@ img {
 }
 
 /* responsive */
+@media (max-width: 800px) {
+  .search-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-form input,
+  .search-form select {
+    width: 100%;
+  }
+}
+
 @media (max-width: 720px) {
   .row {
     flex-direction: column;
