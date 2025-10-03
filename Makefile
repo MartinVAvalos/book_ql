@@ -81,6 +81,15 @@ psql-pipe:
 generate-types:
 	$(Exec) && $(DC) exec frontend sh -c 'cd /app && npm run generate'
 
+build-frontend:
+	$(Exec) && $(DC) exec frontend sh -c 'cd /app && npm run build'
+
+build-frontend-fast:
+	$(Exec) && $(DC) exec frontend sh -c 'cd /app && npm run build:skip-check'
+
+build-prod: build-frontend
+	@echo "Production build completed. Check frontend/dist/ directory."
+
 
 export: // needs work
 	docker exec -it docker-graphql-engine-1 hasura-cli --project /hasura --endpoint http://graphql-engine:8080 --admin-secret $(HASURA_SECRET) metadata export

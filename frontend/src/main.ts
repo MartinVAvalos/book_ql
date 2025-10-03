@@ -62,7 +62,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import { createClient } from "@urql/vue";
 import Provider from "@urql/vue"; // Correct default export for Provider
-import router from '@/components/router.ts';
+import router from '@/components/router';
 const { HASURA_GRAPHQL_ADMIN_SECRET, VITE_GRAPHQL_URL } = import.meta.env;
 
 

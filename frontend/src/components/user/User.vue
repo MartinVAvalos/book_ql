@@ -23,8 +23,8 @@
         <div class="user-list-left">
           <div class="name">{{ u.name || '—' }}</div>
           <div class="email">{{ u.email || '—' }}</div>
-          <div class="count">Loans: {{ u.book_loans?.length ?? u.book_loans_aggregate?.aggregate?.count ?? 0 }}</div>
-          <div class="count">Purchased: {{ u.user_books?.length ?? 0 }}</div>
+          <div class="count">Loans: {{ (u as any).book_loans?.length ?? u.book_loans_aggregate?.aggregate?.count ?? 0 }}</div>
+          <div class="count">Purchased: {{ (u as any).user_books?.length ?? 0 }}</div>
         </div>
         <div class="user-list-right">
           <button class="btn btn-warn" @click="confirmDelete(u.id)" :disabled="deleting">Delete</button>

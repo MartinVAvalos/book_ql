@@ -27,7 +27,7 @@
     <div v-if="booksError" class="error">Error loading books: {{ booksError.message }}</div>
 
     <Shelf
-      :books="booksData?.books || []"
+      :books="(booksData?.books as any) || []"
       @checked-out="onShelfCheckedOut"
       @returned="onShelfReturned"
     />
@@ -87,7 +87,7 @@ const allVars = computed(() => ({
   q: ilikeQ.value,
   limit: limit.value,
   offset: offset.value,
-  order: 'asc' as const,
+  order: 'asc' as any,
 }));
 
 const {
@@ -109,14 +109,14 @@ const catVars = computed(() =>
           q: ilikeQ.value,
           limit: limit.value,
           offset: offset.value,
-          order: 'asc' as const,
+          order: 'asc' as any,
         }
       : {
           categoryId: '00000000-0000-0000-0000-000000000000',
           q: '%%',
           limit: 0,
           offset: 0,
-          order: 'asc' as const,
+          order: 'asc' as any,
         }
 );
 
