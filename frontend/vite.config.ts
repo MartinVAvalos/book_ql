@@ -10,6 +10,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [vue()],
+  base: process.env.NODE_ENV === 'production' ? '/projects/library/' : '/',
   esbuild: {
     target: 'esnext',
   },

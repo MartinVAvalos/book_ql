@@ -27,16 +27,16 @@
     <!-- Navigation Menu -->
     <ul class="nav-right" :class="{ 'mobile-menu-open': showMobileMenu }">
       <li class="nav-item">
-        <router-link to="/" @click="closeMobileMenu">Home</router-link>
+        <router-link to="/projects/library" @click="closeMobileMenu">Home</router-link>
       </li>
       <li class="nav-item">
-        <router-link to="/dashboard" @click="closeMobileMenu">Dashboard</router-link>
+        <router-link to="/projects/library/dashboard" @click="closeMobileMenu">Dashboard</router-link>
       </li>
       <li class="nav-item">
-        <router-link to="/user" @click="closeMobileMenu">Users</router-link>
+        <router-link to="/projects/library/user" @click="closeMobileMenu">Users</router-link>
       </li>
       <li class="nav-item">
-        <router-link to="/aboutus" @click="closeMobileMenu">About Us</router-link>
+        <router-link to="/projects/library/aboutus" @click="closeMobileMenu">About Us</router-link>
       </li>
     </ul>
   </nav>

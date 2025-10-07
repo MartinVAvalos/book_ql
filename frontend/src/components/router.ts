@@ -6,10 +6,10 @@ import AboutUs from '@/components/aboutus/aboutUs.vue';
 
 
 const routes: RouteRecordRaw[] = [
-  { path: '/', component: LibraryUI },
-  { path: '/dashboard', component: Dashboard },
-  { path: '/user', component: User },
-  { path: '/aboutus', component: AboutUs },
+  { path: '/projects/library', component: LibraryUI },
+  { path: '/projects/library/dashboard', component: Dashboard },
+  { path: '/projects/library/user', component: User },
+  { path: '/projects/library/aboutus', component: AboutUs },
 ];
 
 const router = createRouter({
