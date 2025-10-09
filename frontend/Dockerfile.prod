@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine as build
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
@@ -12,7 +12,23 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application
+# Build arguments for Vite environment variables
+# Note: VITE_ prefixed vars are exposed to the browser, so this is expected
+ARG VITE_GRAPHQL_URL=https://vigilantmuse.com/projects/library/graphql
+ARG VITE_HASURA_ADMIN_SECRET=vigilantmuse
+
+# Set environment variables for the build
+# hadolint ignore=DL3059
+ENV VITE_GRAPHQL_URL=$VITE_GRAPHQL_URL \
+    VITE_HASURA_ADMIN_SECRET=$VITE_HASURA_ADMIN_SECRET
+
+# Generate GraphQL API types from production Hasura
+# Update codegen.yml to use production URL
+RUN sed -i "s|http://graphql-engine:8080/v1/graphql|${VITE_GRAPHQL_URL}|g" codegen.yml && \
+    mkdir -p src/assets/generated && \
+    npm run generate || true
+
+# Build the application (will use fallback if codegen failed)
 RUN npm run build
 
 # Production stage

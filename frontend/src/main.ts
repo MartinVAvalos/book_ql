@@ -60,20 +60,20 @@
 // main.ts
 import { createApp } from "vue";
 import App from "./App.vue";
-import { createClient } from "@urql/vue";
+import { createClient, cacheExchange, fetchExchange } from "@urql/vue";
 import Provider from "@urql/vue"; // Correct default export for Provider
 import router from '@/components/router';
-const { HASURA_GRAPHQL_ADMIN_SECRET, VITE_GRAPHQL_URL } = import.meta.env;
+const { VITE_HASURA_ADMIN_SECRET, VITE_GRAPHQL_URL } = import.meta.env;
 
 
 const urqlClient = createClient({
     url: VITE_GRAPHQL_URL,
     fetchOptions: {
         headers: {
-            "x-hasura-admin-secret": HASURA_GRAPHQL_ADMIN_SECRET,
+            "x-hasura-admin-secret": VITE_HASURA_ADMIN_SECRET,
         },
     },
-    exchanges: []
+    exchanges: [cacheExchange, fetchExchange]
 });
 
 const app = createApp(App);

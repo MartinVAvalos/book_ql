@@ -223,6 +223,8 @@ async function selectUser(u: any) {
         } else {
             // notify parent so it can refresh lists
             emit('checked-out', props.book);
+            // refetch active loans to update the counts
+            activeLoansExec({ requestPolicy: 'network-only' });
             closeCheckout();
         }
     } catch (err) {

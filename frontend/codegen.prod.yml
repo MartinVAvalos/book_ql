@@ -1,0 +1,20 @@
+schema:
+  'https://vigilantmuse.com/projects/library/graphql':
+    headers:
+      Content-Type: application/json
+      x-hasura-admin-secret: vigilantmuse
+documents:
+  - src/**/*.graphql
+  - src/models/operations.graphql
+generates:
+  src/assets/generated/api.ts:
+    config: 
+      gqlImport: '@urql/vue#gql'
+      arrayInputCoercion: false
+      nonOptionalTypename: true
+    plugins:
+      - add:
+          content: '// @ts-nocheck'
+      - typescript
+      - typescript-operations
+      - typescript-vue-urql
