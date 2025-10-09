@@ -80,7 +80,7 @@
                     </li>
                 </ul>
             </div>
-            <div style="text-align:right;margin-top:.6rem;">
+            <div class="modal-actions">
                 <button class="btn btn-warn" @click="closeReturn">Cancel</button>
             </div>
         </div>
