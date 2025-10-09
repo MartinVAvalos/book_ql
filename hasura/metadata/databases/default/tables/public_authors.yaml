@@ -9,3 +9,11 @@ array_relationships:
         table:
           name: book_authors
           schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - id
+        - name
+      filter: {}
+      allow_aggregations: true

@@ -63,14 +63,15 @@ import App from "./App.vue";
 import { createClient, cacheExchange, fetchExchange } from "@urql/vue";
 import Provider from "@urql/vue"; // Correct default export for Provider
 import router from '@/components/router';
-const { VITE_HASURA_ADMIN_SECRET, VITE_GRAPHQL_URL } = import.meta.env;
+const { VITE_GRAPHQL_URL } = import.meta.env;
 
 
 const urqlClient = createClient({
     url: VITE_GRAPHQL_URL,
     fetchOptions: {
         headers: {
-            "x-hasura-admin-secret": VITE_HASURA_ADMIN_SECRET,
+            // Using anonymous role - no authentication required
+            "x-hasura-role": "anonymous",
         },
     },
     exchanges: [cacheExchange, fetchExchange]

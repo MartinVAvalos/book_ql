@@ -36,6 +36,8 @@ services:
       HASURA_GRAPHQL_DATABASE_URL: postgres://muse:Muse1997!@bookql_postgres:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: "false"  # Disable in production
       HASURA_GRAPHQL_ADMIN_SECRET: vigilantmuse
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256","key":"your-super-secret-jwt-key-min-32-chars-long-change-this-in-production"}'
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
       HASURA_GRAPHQL_MIGRATIONS_DIR: /hasura-migrations
       HASURA_GRAPHQL_METADATA_DIR: /hasura-metadata
     volumes:

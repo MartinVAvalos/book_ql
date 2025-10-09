@@ -13,14 +13,10 @@ RUN npm ci
 COPY . .
 
 # Build arguments for Vite environment variables
-# Note: VITE_ prefixed vars are exposed to the browser, so this is expected
 ARG VITE_GRAPHQL_URL=https://vigilantmuse.com/projects/library/graphql
-ARG VITE_HASURA_ADMIN_SECRET=vigilantmuse
 
 # Set environment variables for the build
-# hadolint ignore=DL3059
-ENV VITE_GRAPHQL_URL=$VITE_GRAPHQL_URL \
-    VITE_HASURA_ADMIN_SECRET=$VITE_HASURA_ADMIN_SECRET
+ENV VITE_GRAPHQL_URL=$VITE_GRAPHQL_URL
 
 # Generate GraphQL API types from production Hasura
 # Update codegen.yml to use production URL

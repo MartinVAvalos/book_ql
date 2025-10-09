@@ -16,3 +16,23 @@ array_relationships:
         table:
           name: user_books
           schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - id
+        - name
+        - email
+      filter: {}
+      allow_aggregations: true
+insert_permissions:
+  - role: anonymous
+    permission:
+      check: {}
+      columns:
+        - name
+        - email
+delete_permissions:
+  - role: anonymous
+    permission:
+      filter: {}
